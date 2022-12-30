@@ -7,33 +7,33 @@ public class Main {
     public static void main(String args[]) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int N = Integer.parseInt(br.readLine());
-        Deque<Integer> deque = new LinkedList<>();
+        Stack stack = new Stack();
         for (int i = 0; i < N; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine(), " ");
             String order = st.nextToken();
             switch (order) {
                 case "push":
-                    deque.add(Integer.parseInt(st.nextToken()));
+                    stack.push(Integer.parseInt(st.nextToken()));
                     break;
                 case "pop":
-                    if (deque.isEmpty()) {
+                    if (stack.isEmpty()) {
                         System.out.println(-1);
                     } else {
-                        System.out.println(deque.peekLast());
-                        deque.removeLast();
+                        System.out.println(stack.peek());
+                        stack.pop();
                     }
                     break;
                 case "size":
-                    System.out.println(deque.size());
+                    System.out.println(stack.size());
                     break;
                 case "empty":
-                    if (deque.isEmpty()) System.out.println(1);
+                    if (stack.isEmpty()) System.out.println(1);
                     else System.out.println(0);
                     break;
                 case "top":
-                    if (deque.isEmpty()) {
+                    if (stack.isEmpty()) {
                         System.out.println(-1);
-                    } else System.out.println(deque.peekLast());
+                    } else System.out.println(stack.peek());
                     break;
             }
         }
