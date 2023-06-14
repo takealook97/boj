@@ -2,7 +2,6 @@ import java.util.*;
 
 class Solution {
     static HashMap<Long, Long> map = new HashMap<>();
-    static HashSet<Long> set = new HashSet<>();
 
     public long[] solution(long k, long[] room_number) {
         long[] result = new long[room_number.length];
@@ -17,7 +16,6 @@ class Solution {
     public long getNext(long cur) {
         if (!map.containsKey(cur)) {
             map.put(cur, cur + 1);
-            set.add(cur);
             return cur;
         }
         long next = getNext(map.get(cur));
