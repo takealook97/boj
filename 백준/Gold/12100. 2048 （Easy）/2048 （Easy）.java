@@ -1,6 +1,4 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 
 public class Main {
@@ -18,12 +16,26 @@ public class Main {
         for (int i = 0; i < N; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine());
             for (int j = 0; j < N; j++) {
-                board[i][j] = Integer.parseInt(st.nextToken());
+                int num = Integer.parseInt(st.nextToken());
+                if (num != 0) {
+                    board[i][j] = getIndex(num);
+                } else {
+                    board[i][j] = num;
+                }
                 visit[i][j] = board[i][j] != 0;
             }
         }
         dfs(0);
-        System.out.println(answer);
+        System.out.println((int) Math.pow(2, answer));
+    }
+
+    static int getIndex(int num) {
+        int index = 1;
+        while (num / 2 != 1) {
+            num /= 2;
+            index++;
+        }
+        return index;
     }
 
     static void dfs(int depth) {
@@ -31,7 +43,12 @@ public class Main {
             return;
         }
 
-        answer = Math.max(answer, getMax());
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                answer = Math.max(answer, board[i][j]);
+            }
+        }
+
         for (int i = 0; i < 4; i++) {//북 동 남 서
             int[][] cur = new int[N][N];
             for (int j = 0; j < N; j++) {
@@ -79,7 +96,7 @@ public class Main {
                     int left = 0, right = 1;
                     while (left < line.size() && right < line.size()) {
                         if (line.get(left).equals(line.get(right))) {
-                            updatedLine.add(line.get(left) * 2);
+                            updatedLine.add(line.get(left) + 1);
                             left += 2;
                             right += 2;
                         } else {
@@ -97,7 +114,7 @@ public class Main {
                     int left = line.size() - 2, right = line.size() - 1;
                     while (left >= 0 && right >= 0) {
                         if (line.get(left).equals(line.get(right))) {
-                            updatedLine.addFirst(line.get(right) * 2);
+                            updatedLine.addFirst(line.get(right) + 1);
                             left -= 2;
                             right -= 2;
                         } else {
@@ -132,15 +149,5 @@ public class Main {
                 }
             }
         }
-    }
-
-    static int getMax() {
-        int maxNum = 0;
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                maxNum = Math.max(maxNum, board[i][j]);
-            }
-        }
-        return maxNum;
     }
 }
