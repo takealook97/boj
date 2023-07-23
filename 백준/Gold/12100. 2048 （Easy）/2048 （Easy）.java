@@ -7,7 +7,6 @@ public class Main {
     static boolean[][] visit;
     static int answer = 0;
 
-
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         N = Integer.parseInt(br.readLine());
@@ -19,6 +18,7 @@ public class Main {
                 int num = Integer.parseInt(st.nextToken());
                 if (num != 0) {
                     board[i][j] = getIndex(num);
+                    answer = Math.max(answer, board[i][j]);
                 } else {
                     board[i][j] = num;
                 }
@@ -39,29 +39,23 @@ public class Main {
     }
 
     static void dfs(int depth) {
-        if (depth > 5) {
+        if (depth >= 5) {
             return;
         }
 
+        int[][] cur = new int[N][N];
         for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                answer = Math.max(answer, board[i][j]);
-            }
+            System.arraycopy(board[i], 0, cur[i], 0, N);
         }
-
         for (int i = 0; i < 4; i++) {//북 동 남 서
-            int[][] cur = new int[N][N];
-            for (int j = 0; j < N; j++) {
-                cur[j] = board[j].clone();
-            }
-
             update(i);
-
             if (Arrays.deepEquals(cur, board)) {
                 continue;
             }
             dfs(depth + 1);
-            board = cur.clone();
+            for (int j = 0; j < N; j++) {
+                System.arraycopy(cur[j], 0, board[j], 0, N);
+            }
         }
     }
 
@@ -142,11 +136,13 @@ public class Main {
             }
 
             for (int j = 0; j < N; j++) {
+                int num = updatedLine.removeFirst();
                 if (dir == 0 || dir == 2) {
-                    board[j][i] = updatedLine.removeFirst();
+                    board[j][i] = num;
                 } else {
-                    board[i][j] = updatedLine.removeFirst();
+                    board[i][j] = num;
                 }
+                answer = Math.max(answer, num);
             }
         }
     }
