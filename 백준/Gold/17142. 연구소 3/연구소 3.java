@@ -1,88 +1,103 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
-class Main {
+public class Main {
 	static int N, M;
-	static int[][] arr;
-	static int[] dx = {-1, 1, 0, 0};
-	static int[] dy = {0, 0, -1, 1};
-	static List<Point> points = new ArrayList<>();
-	static Point[] active;
+	static int[][] board;
+	static boolean[][] visit;
+	static ArrayList<Point> virusList = new ArrayList<>();
+	static boolean[] selected;
+	static int emptyCount = 0;
+	static int[] dy = {-1, 1, 0, 0}, dx = {0, 0, -1, 1};
 	static int answer = Integer.MAX_VALUE;
-	static int empty = 0;
-	static class Point {
-		int x, y, time;
 
-		Point(int x, int y, int time) {
-			this.x = x;
+	static class Point {
+		int y, x, time;
+
+		public Point(int y, int x, int time) {
 			this.y = y;
+			this.x = x;
 			this.time = time;
 		}
 	}
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine());
 		N = Integer.parseInt(st.nextToken());
 		M = Integer.parseInt(st.nextToken());
-
-		arr = new int[N][N];
-		active = new Point[M];
+		board = new int[N][N];
 		for (int i = 0; i < N; i++) {
 			st = new StringTokenizer(br.readLine());
 			for (int j = 0; j < N; j++) {
-				arr[i][j] = Integer.parseInt(st.nextToken());
-				if (arr[i][j] == 0) {
-					empty++;
-				} else if (arr[i][j] == 2) {
-					points.add(new Point(i, j, 0));
+				int num = Integer.parseInt(st.nextToken());
+				if (num == 2) {
+					virusList.add(new Point(i, j, 0));
+				} else if (num == 0) {
+					emptyCount++;
 				}
+				board[i][j] = num;
+			}
+		}
+		if (emptyCount == 0) {
+			System.out.println(0);
+			System.exit(0);
+		}
+
+		selected = new boolean[virusList.size()];
+		dfs(0, 0);
+
+		if (answer == Integer.MAX_VALUE) {
+			System.out.println(-1);
+		} else {
+			System.out.println(answer);
+		}
+	}
+
+	static void dfs(int index, int count) {
+		if (count == M) {
+			bfs();
+			return;
+		}
+		for (int i = index; i < virusList.size(); i++) {
+			if (!selected[i]) {
+				selected[i] = true;
+				dfs(i, count + 1);
+				selected[i] = false;
+			}
+		}
+	}
+
+	static void bfs() {
+		Queue<Point> queue = new LinkedList<>();
+		visit = new boolean[N][N];
+		for (int i = 0; i < selected.length; i++) {
+			if (selected[i]) {
+				Point pick = virusList.get(i);
+				visit[pick.y][pick.x] = true;
+				queue.add(pick);
 			}
 		}
 
-		if (empty == 0) {
-			System.out.println(0);
-		} else {
-			select(0, 0);
-			System.out.println(answer == Integer.MAX_VALUE ? -1 : answer);
-		}
-	}
-
-	static void select(int start, int selectCount) {
-		if (selectCount == M) {
-			bfs(empty);
-			return;
-		}
-		for (int i = start; i < points.size(); i++) {
-			active[selectCount] = points.get(i);
-			select(i + 1, selectCount + 1);
-		}
-	}
-
-	static void bfs(int emptySpace) {
-		Queue<Point> queue = new LinkedList<>();
-		boolean[][] visit = new boolean[N][N];
-		for (int i = 0; i < M; i++) {
-			Point point = active[i];
-			visit[point.x][point.y] = true;
-			queue.add(point);
-		}
+		int count = emptyCount;
 		while (!queue.isEmpty()) {
-			Point point = queue.poll();
+			Point now = queue.poll();
 			for (int i = 0; i < 4; i++) {
-				int nx = point.x + dx[i];
-				int ny = point.y + dy[i];
-				if (nx < 0 || nx >= N || ny < 0 || ny >= N) continue;
-				if (visit[nx][ny] || arr[nx][ny] == 1) continue;
-				if (arr[nx][ny] == 0) {
-					emptySpace--;
+				int nextY = now.y + dy[i];
+				int nextX = now.x + dx[i];
+				int nextT = now.time + 1;
+				if (0 <= nextY && nextY < N && 0 <= nextX && nextX < N && !visit[nextY][nextX]
+					&& board[nextY][nextX] != 1) {
+					if (board[nextY][nextX] == 0) {
+						count--;
+					}
+					if (count == 0) {
+						answer = Math.min(answer, nextT);
+						return;
+					}
+					visit[nextY][nextX] = true;
+					queue.add(new Point(nextY, nextX, nextT));
 				}
-				if (emptySpace == 0) {
-					answer = Math.min(answer, point.time + 1);
-					return;
-				}
-				visit[nx][ny] = true;
-				queue.add(new Point(nx, ny, point.time + 1));
 			}
 		}
 	}
