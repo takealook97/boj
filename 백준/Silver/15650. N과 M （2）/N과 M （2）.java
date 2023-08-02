@@ -1,45 +1,32 @@
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
-    static int N;
-    static int M;
-    static int[] arr;
-    static boolean[] check;
+	static int N, M;
+	static int[] arr;
+	static int count = 0;
+	static StringBuilder sb = new StringBuilder();
 
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		N = sc.nextInt();
+		M = sc.nextInt();
+		arr = new int[M];
+		comb(1, 0);
+		System.out.print(sb);
+	}
 
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        N = sc.nextInt();
-        M = sc.nextInt();
-        arr = new int[M];
-        check = new boolean[N];
-        dfs(0);
-    }
-
-    static void dfs(int depth) {
-        if (depth == M) {
-            ArrayList<Integer> result = new ArrayList<>();
-            for (int i = 0; i < M; i++) {
-                if (result.isEmpty() || result.get(result.size() - 1) < arr[i]) {
-                    result.add(arr[i]);
-                }
-            }
-            if (result.size() == M) {
-                for(int i = 0; i < M; i++){
-                    System.out.print(result.get(i) + " ");
-                }
-                System.out.println();
-            }
-            return;
-        }
-        for (int i = 0; i < N; i++) {
-            if (!check[i]) {
-                check[i] = true;
-                arr[depth] = i + 1;
-                dfs(depth + 1);
-                check[i] = false;
-            }
-        }
-    }
+	static void comb(int start, int depth) {
+		if (depth == M) {
+			count++;
+			for (int num : arr) {
+				sb.append(num).append(" ");
+			}
+			sb.append("\n");
+			return;
+		}
+		for (int i = start; i <= N; i++) {
+			arr[depth] = i;
+			comb(i + 1, depth + 1);
+		}
+	}
 }
