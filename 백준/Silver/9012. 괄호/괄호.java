@@ -1,36 +1,46 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Stack;
 
 public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        int N = sc.nextInt();
-        for (int i = 0; i < N; i++) {
-            int open = 0;
-            int close = 0;
-            String input = sc.next();
-            int[] check = new int[input.length()];
-            int sum = 0;
-            for (int j = 0; j < input.length(); j++) {
-                if (input.charAt(j) - 40 == 0) {
-                    check[j] = -1;
-                    open++;
-                } else {
-                    check[j] = 1;
-                    close++;
-                }
-            }
-            if (open == close && input.charAt(0) - 40 == 0 && input.charAt(input.length() - 1) - 40 == 1) {
-                for (int j = 0; j < input.length(); j++) {
-                    sum += check[j];
-                    if (sum > 0) {
-                        System.out.println("NO");
-                        break;
-                    }
-                }
-                if (sum == 0) {
-                    System.out.println("YES");
-                }
-            } else System.out.println("NO");
-        }
-    }
+	static String line;
+	static Stack<Integer> stack;
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringBuilder sb = new StringBuilder();
+		int T = Integer.parseInt(br.readLine());
+		while (T-- > 0) {
+			stack = new Stack<>();
+			line = br.readLine();
+			if (line.length() % 2 != 0) {
+				sb.append("NO");
+			} else {
+				if (isPossible(line)) {
+					sb.append("YES");
+				} else {
+					sb.append("NO");
+				}
+			}
+			sb.append("\n");
+		}
+		System.out.print(sb);
+	}
+
+	static boolean isPossible(String line) {
+		for (int bracket : line.toCharArray()) {
+			if (bracket == '(') {
+				stack.add(bracket);
+			} else {
+				bracket--;
+				if (stack.isEmpty()) {
+					return false;
+				} else if (bracket != stack.pop()) {
+					return false;
+				}
+			}
+		}
+		return stack.isEmpty();
+	}
 }
