@@ -30,7 +30,7 @@
 	<tbody>
 		<tr>
 			<td style="width: 50%; text-align: center;"><img alt="" src="https://onlinejudgeimages.s3-ap-northeast-1.amazonaws.com/problem/15684/3.png" style="width: 390px; height: 300px;"></td>
-			<td style="width: 50%; text-align: center;"><img alt="" src="https://onlinejudgeimages.s3-ap-northeast-1.amazonaws.com/problem/15684/4.png" style="width: 390px; height: 300px;"></td>
+			<td style="width: 50%; text-align: center;"><img alt="" src="" style="width: 390px; height: 300px;"></td>
 		</tr>
 		<tr>
 			<td style="width: 50%; text-align: center;">1번 세로선</td>
