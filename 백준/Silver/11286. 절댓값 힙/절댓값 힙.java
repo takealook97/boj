@@ -1,36 +1,41 @@
-import java.util.HashMap;
-import java.util.PriorityQueue;
-import java.util.Scanner;
+import java.io.*;
+import java.util.*;
 
 public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        int N = sc.nextInt();
-        PriorityQueue<Integer> queue = new PriorityQueue<>();
-        HashMap<Integer, Integer> map = new HashMap<>();
+	static class Number implements Comparable<Number> {
+		int num, absNum;
 
-        while (N-- > 0) {
-            int num = sc.nextInt();
-            if (num != 0) {
-                if (!map.containsKey(num)) {
-                    map.put(num, 0);
-                }
-                map.put(num, map.get(num) + 1);
-                queue.add(Math.abs(num));
-            } else {
-                if (!queue.isEmpty()) {
-                    int key = queue.peek();
-                    if (map.containsKey(-key) && map.get(-key) != 0) {
-                        System.out.println(-key);
-                        queue.poll();
-                        map.put(-key, map.get(-key) - 1);
-                    } else if (map.containsKey(key) && map.get(key) != 0) {
-                        System.out.println(key);
-                        queue.poll();
-                        map.put(key, map.get(key) - 1);
-                    }
-                } else System.out.println(0);
-            }
-        }
-    }
+		public Number(int num) {
+			this.num = num;
+			this.absNum = Math.abs(num);
+		}
+
+		@Override
+		public int compareTo(Number o) {
+			if (this.absNum == o.absNum) {
+				return this.num - o.num;
+			}
+			return this.absNum - o.absNum;
+		}
+	}
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		int N = Integer.parseInt(br.readLine());
+		PriorityQueue<Number> pq = new PriorityQueue<>();
+		StringBuilder sb = new StringBuilder();
+		while (N-- > 0) {
+			int x = Integer.parseInt(br.readLine());
+			if (x != 0) {
+				pq.add(new Number(x));
+			} else {
+				int answer = 0;
+				if (!pq.isEmpty()) {
+					answer = pq.poll().num;
+				}
+				sb.append(answer).append("\n");
+			}
+		}
+		System.out.print(sb);
+	}
 }
