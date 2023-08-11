@@ -1,17 +1,13 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
+import java.io.*;
+import java.util.*;
 
 public class Main {
 	static int N, M;
-	static int[][] arr;
 	static ArrayList<Point> homes = new ArrayList<>();
 	static ArrayList<Point> chickens = new ArrayList<>();
-	static ArrayList<ArrayList<Integer>> distance; // home to chicken
-	static boolean[] check;
-	static int result;
+	static ArrayList<ArrayList<Integer>> distanceList; // home to chicken
+	static boolean[] visit;
+	static int answer;
 
 	static class Point {
 		int y, x;
@@ -27,41 +23,36 @@ public class Main {
 		StringTokenizer st = new StringTokenizer(br.readLine());
 		N = Integer.parseInt(st.nextToken());
 		M = Integer.parseInt(st.nextToken());
-		arr = new int[N][N];
 		for (int i = 0; i < N; i++) {
 			st = new StringTokenizer(br.readLine());
 			for (int j = 0; j < N; j++) {
-				arr[i][j] = Integer.parseInt(st.nextToken());
-				if (arr[i][j] == 1) {
+				int num = Integer.parseInt(st.nextToken());
+				if (num == 1) {
 					homes.add(new Point(i, j));
-				} else if (arr[i][j] == 2) {
+				} else if (num == 2) {
 					chickens.add(new Point(i, j));
 				}
 			}
 		}
 
 		getDistance();
-		getResult();
+		answer = Integer.MAX_VALUE;
+		visit = new boolean[chickens.size()];
+		dfs(0, 0);
 
-		System.out.println(result);
+		System.out.println(answer);
 	}
 
 	static void getDistance() {
-		distance = new ArrayList<>();
+		distanceList = new ArrayList<>();
 		for (Point home : homes) {
 			ArrayList<Integer> distances = new ArrayList<>();
 			for (Point chicken : chickens) {
-				int sum = Math.abs(home.y - chicken.y) + Math.abs(home.x - chicken.x);
-				distances.add(sum);
+				int distance = Math.abs(home.y - chicken.y) + Math.abs(home.x - chicken.x);
+				distances.add(distance);
 			}
-			distance.add(distances);
+			distanceList.add(distances);
 		}
-	}
-
-	static void getResult() {
-		result = Integer.MAX_VALUE;
-		check = new boolean[chickens.size()];
-		dfs(0, 0);
 	}
 
 	static void dfs(int start, int count) {
@@ -70,20 +61,20 @@ public class Main {
 			for (int i = 0; i < homes.size(); i++) {
 				int minDistance = Integer.MAX_VALUE;
 				for (int j = 0; j < chickens.size(); j++) {
-					if (check[j]) {
-						minDistance = Math.min(minDistance, distance.get(i).get(j));
+					if (visit[j]) {
+						minDistance = Math.min(minDistance, distanceList.get(i).get(j));
 					}
 				}
 				sum += minDistance;
 			}
-			result = Math.min(result, sum);
+			answer = Math.min(answer, sum);
 			return;
 		}
 
 		for (int i = start; i < chickens.size(); i++) {
-			check[i] = true;
+			visit[i] = true;
 			dfs(i + 1, count + 1);
-			check[i] = false;
+			visit[i] = false;
 		}
 	}
 }
