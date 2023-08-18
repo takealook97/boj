@@ -128,10 +128,6 @@ public class Main {
 		}
 	}
 
-	static boolean isInRange(int y, int x) {
-		return 0 <= y && y < N && 0 <= x && x < M;
-	}
-
 	static boolean isClear() {
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < M; j++) {
