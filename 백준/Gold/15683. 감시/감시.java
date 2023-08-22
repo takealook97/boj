@@ -1,20 +1,23 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
+import java.util.*;
+import java.io.*;
 
 public class Main {
 	static int N, M;
-	static int[][] arr;
-	static int[][] cctv;
+	static int[][] board;
+	static int[][] checkArr;
 	static ArrayList<int[]>[] directionList;
-	static ArrayList<Point> list = new ArrayList<>();
+	static ArrayList<Point> cctvPosList = new ArrayList<>();
 	static boolean[] visit;
 	static int count = 0;
-	static int[] dy = {-1, 1, 0, 0};
-	static int[] dx = {0, 0, -1, 1};
-	static int result = Integer.MAX_VALUE;
+	static int[] dy = { -1, 1, 0, 0 }, dx = { 0, 0, -1, 1 };
+
+	static final int UP = 0;
+	static final int DOWN = 1;
+	static final int LEFT = 2;
+	static final int RIGHT = 3;
+	static final int CCTV_COUNT = 5;
+
+	static int answer = Integer.MAX_VALUE;
 
 	static class Point {
 		int y, x;
@@ -25,103 +28,119 @@ public class Main {
 		}
 	}
 
+	static class BoardConstant {
+		static final int SPACE = 0;
+		static final int CCTV_FIRST = 1;
+		static final int CCTV_SECOND = 2;
+		static final int CCTV_THIRD = 3;
+		static final int CCTV_FOURTH = 4;
+		static final int CCTV_FIFTH = 5;
+		static final int WALL = 6;
+	}
+
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine());
 		N = Integer.parseInt(st.nextToken());
 		M = Integer.parseInt(st.nextToken());
-		arr = new int[N][M];
-		cctv = new int[N][M];
+		board = new int[N][M];
+		checkArr = new int[N][M];
 
 		for (int i = 0; i < N; i++) {
 			st = new StringTokenizer(br.readLine());
 			for (int j = 0; j < M; j++) {
-				arr[i][j] = Integer.parseInt(st.nextToken());
-				if (arr[i][j] != 0 && arr[i][j] != 6) {
+				board[i][j] = Integer.parseInt(st.nextToken());
+				if (board[i][j] != BoardConstant.SPACE && board[i][j] != BoardConstant.WALL) {// cctv인경우
 					count++;
-					list.add(new Point(i, j));
-					cctv[i][j]++;
-				} else if (arr[i][j] == 6) {
-					cctv[i][j]++;
+					cctvPosList.add(new Point(i, j));
+					checkArr[i][j]++;
+				} else if (board[i][j] == BoardConstant.WALL) {
+					checkArr[i][j]++;
 				}
 			}
 		}
 		visit = new boolean[count];
-		makeDirectionList();
+		setDirectionList();
 		dfs(0);
-		System.out.println(result);
+		System.out.println(answer);
 	}
 
-	static void makeDirectionList() {
-		directionList = new ArrayList[6];
-		for (int i = 1; i <= 5; i++) {
+	static void setDirectionList() {
+		directionList = new ArrayList[CCTV_COUNT + 1];
+		for (int i = 1; i <= CCTV_COUNT; i++) {
 			directionList[i] = new ArrayList<>();
 		}
 		for (int i = 0; i < 4; i++) {
-			directionList[1].add(new int[]{i});
+			directionList[BoardConstant.CCTV_FIRST].add(new int[] { i });
 		}
-		directionList[2].add(new int[]{0, 1});
-		directionList[2].add(new int[]{2, 3});
-		directionList[3].add(new int[]{0, 2});
-		directionList[3].add(new int[]{0, 3});
-		directionList[3].add(new int[]{1, 2});
-		directionList[3].add(new int[]{1, 3});
-		directionList[4].add(new int[]{0, 1, 2});
-		directionList[4].add(new int[]{0, 1, 3});
-		directionList[4].add(new int[]{0, 2, 3});
-		directionList[4].add(new int[]{1, 2, 3});
-		directionList[5].add(new int[]{0, 1, 2, 3});
+		directionList[BoardConstant.CCTV_SECOND].add(new int[] { UP, DOWN });
+		directionList[BoardConstant.CCTV_SECOND].add(new int[] { LEFT, RIGHT });
+
+		directionList[BoardConstant.CCTV_THIRD].add(new int[] { UP, LEFT });
+		directionList[BoardConstant.CCTV_THIRD].add(new int[] { UP, RIGHT });
+		directionList[BoardConstant.CCTV_THIRD].add(new int[] { DOWN, LEFT });
+		directionList[BoardConstant.CCTV_THIRD].add(new int[] { DOWN, RIGHT });
+
+		directionList[BoardConstant.CCTV_FOURTH].add(new int[] { UP, DOWN, LEFT });
+		directionList[BoardConstant.CCTV_FOURTH].add(new int[] { UP, DOWN, RIGHT });
+		directionList[BoardConstant.CCTV_FOURTH].add(new int[] { UP, LEFT, RIGHT });
+		directionList[BoardConstant.CCTV_FOURTH].add(new int[] { DOWN, LEFT, RIGHT });
+
+		directionList[BoardConstant.CCTV_FIFTH].add(new int[] { UP, DOWN, LEFT, RIGHT });
 	}
 
-	static void dfs(int depth) {
-		if (depth == count) {
-			result = Math.min(result, getBlindSpots());
+	static void dfs(int idx) {
+		if (idx == count) {
+			answer = Math.min(answer, getBlindSpots());
 			return;
 		}
-		Point now = list.get(depth);
-		int nowY = now.y;
-		int nowX = now.x;
-		int nowNum = arr[nowY][nowX];
-		for (int i = 0; i < directionList[nowNum].size(); i++) {
-			visit[depth] = true;
-			checkView(nowY, nowX, i, true);
-			dfs(depth + 1);
-			checkView(nowY, nowX, i, false);
-			visit[depth] = false;
+		Point now = cctvPosList.get(idx);
+		int nowCctvIdx = board[now.y][now.x];
+		for (int dirArrIdx = 0; dirArrIdx < directionList[nowCctvIdx].size(); dirArrIdx++) {
+			visit[idx] = true;
+			changeViewSpots(now.y, now.x, dirArrIdx, true);
+			dfs(idx + 1);
+			changeViewSpots(now.y, now.x, dirArrIdx, false);
+			visit[idx] = false;
 		}
 	}
 
-	static void checkView(int y, int x, int index, boolean isOn) {
-		int cctvNum = arr[y][x];
+	static void changeViewSpots(int y, int x, int dirArrIdx, boolean isOn) {
+		int cctvNum = board[y][x];
 		int curY = y;
 		int curX = x;
-		int[] directionArr = directionList[cctvNum].get(index);
-		for (int direction : directionArr) {
-			curY += dy[direction];
-			curX += dx[direction];
-			while (0 <= curY && curY < N && 0 <= curX && curX < M && arr[curY][curX] != 6) {
+		int[] dirArr = directionList[cctvNum].get(dirArrIdx);
+		for (int dir : dirArr) {
+			curY += dy[dir];
+			curX += dx[dir];
+			while (isInRange(curY, curX) && board[curY][curX] != BoardConstant.WALL) {
 				if (isOn) {
-					cctv[curY][curX]++;
+					checkArr[curY][curX]++;
 				} else {
-					cctv[curY][curX]--;
+					checkArr[curY][curX]--;
 				}
-				curY += dy[direction];
-				curX += dx[direction];
+				curY += dy[dir];
+				curX += dx[dir];
+
 			}
 			curY = y;
 			curX = x;
 		}
 	}
 
+	static boolean isInRange(int y, int x) {
+		return 0 <= y && y < N && 0 <= x && x < M;
+	}
+
 	static int getBlindSpots() {
-		int count = 0;
+		int blindSpotCount = 0;
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < M; j++) {
-				if (cctv[i][j] == 0) {
-					count++;
+				if (checkArr[i][j] == 0) {
+					blindSpotCount++;
 				}
 			}
 		}
-		return count;
+		return blindSpotCount;
 	}
 }
