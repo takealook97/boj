@@ -1,21 +1,20 @@
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         int N = sc.nextInt();
-        int[] num = new int[N + 1];
-        num[1] = 0;
-        //num[숫자] = 숫자를 만드는데 걸리는 횟수
-        for (int i = 2; i < N + 1; i++) {
-            num[i] = num[i - 1] + 1;
-            if (i % 2 == 0 && num[i] > num[i / 2] + 1) {
-                num[i] = num[i / 2] + 1;
+        int[] dp = new int[N + 1];
+        dp[1] = 0;
+        for (int i = 2; i <= N; i++) {
+            dp[i] = dp[i - 1] + 1;
+            if (i % 2 == 0 && dp[i] > dp[i / 2] + 1) {
+                dp[i] = dp[i / 2] + 1;
             }
-            if (i % 3 == 0 && num[i] > num[i / 3] + 1) {
-                num[i] = num[i / 3] + 1;
+            if (i % 3 == 0 && dp[i] > dp[i / 3] + 1) {
+                dp[i] = dp[i / 3] + 1;
             }
         }
-        System.out.println(num[N]);
+        System.out.println(dp[N]);
     }
 }
