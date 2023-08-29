@@ -1,44 +1,46 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.StringTokenizer;
+import java.io.*;
+import java.util.*;
 
 public class Main {
     static int N;
-    static int[][] arr;
+    static int[][] board;
     static int[][] sum;
+    static final int COLOR_COUNT = 3;
+    static final int R = 0;
+    static final int G = 1;
+    static final int B = 2;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         N = Integer.parseInt(br.readLine());
-        arr = new int[N][3];
-        sum = new int[N][3];
+        board = new int[N][COLOR_COUNT];
+        sum = new int[N][COLOR_COUNT];
 
         for (int i = 0; i < N; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine());
-            arr[i][0] = Integer.parseInt(st.nextToken());
-            arr[i][1] = Integer.parseInt(st.nextToken());
-            arr[i][2] = Integer.parseInt(st.nextToken());
+            board[i][R] = Integer.parseInt(st.nextToken());
+            board[i][G] = Integer.parseInt(st.nextToken());
+            board[i][B] = Integer.parseInt(st.nextToken());
         }
 
-        sum[0][0] = arr[0][0];
-        sum[0][1] = arr[0][1];
-        sum[0][2] = arr[0][2];
+        sum[0][R] = board[0][R];
+        sum[0][G] = board[0][G];
+        sum[0][B] = board[0][B];
 
-        System.out.println(Math.min(getMin(N - 1, 0),
-                Math.min(getMin(N - 1, 1), getMin(N - 1, 2))));
+        System.out.println(Math.min(getMin(N - 1, R),
+                Math.min(getMin(N - 1, G), getMin(N - 1, B))));
     }
 
-    static int getMin(int index, int color) {
-        if (sum[index][color] == 0) {
-            if (color == 0) {
-                sum[index][0] = Math.min(getMin(index - 1, 1), getMin(index - 1, 2)) + arr[index][0];
-            } else if (color == 1) {
-                sum[index][1] = Math.min(getMin(index - 1, 0), getMin(index - 1, 2)) + arr[index][1];
-            } else {
-                sum[index][2] = Math.min(getMin(index - 1, 0), getMin(index - 1, 1)) + arr[index][2];
+    static int getMin(int idx, int color) {
+        if (sum[idx][color] == 0) {
+            if (color == R) {
+                sum[idx][R] = Math.min(getMin(idx - 1, G), getMin(idx - 1, B)) + board[idx][R];
+            } else if (color == G) {
+                sum[idx][G] = Math.min(getMin(idx - 1, R), getMin(idx - 1, B)) + board[idx][G];
+            } else if (color == B) {
+                sum[idx][B] = Math.min(getMin(idx - 1, R), getMin(idx - 1, G)) + board[idx][B];
             }
         }
-        return sum[index][color];
+        return sum[idx][color];
     }
 }
