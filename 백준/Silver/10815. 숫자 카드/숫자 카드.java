@@ -1,19 +1,34 @@
-import java.util.HashSet;
-import java.util.Scanner;
+import java.io.*;
+import java.util.*;
 
 public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        int N = sc.nextInt();
-        HashSet<Integer> list = new HashSet<>();
-        for (int i = 0; i < N; i++) {
-            list.add(sc.nextInt());
+    static int N, M;
+    static HashSet<Integer> set = new HashSet<>();
+    static ArrayList<Integer> target = new ArrayList<>();
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        N = Integer.parseInt(br.readLine());
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        while (N-- > 0) {
+            set.add(Integer.parseInt(st.nextToken()));
         }
-        int M = sc.nextInt();
-        for (int i = 0; i < M; i++) {
-            if (list.contains(sc.nextInt())) {
-                System.out.print("1 ");
-            } else System.out.print("0 ");
+
+        st = new StringTokenizer(br.readLine());
+        M = Integer.parseInt(st.nextToken());
+        st = new StringTokenizer(br.readLine());
+        while (M-- > 0) {
+            target.add(Integer.parseInt(st.nextToken()));
         }
+        StringBuilder sb = new StringBuilder();
+        for (int i : target) {
+            if (set.contains(i)) {
+                sb.append(1);
+            } else {
+                sb.append(0);
+            }
+            sb.append(" ");
+        }
+        System.out.print(sb);
     }
 }
