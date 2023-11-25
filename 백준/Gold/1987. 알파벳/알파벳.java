@@ -5,8 +5,8 @@ public class Main {
 	static int R, C;
 	static int[][] board;
 	static boolean[] visit;
-	static int[] dy = { -1, 1, 0, 0 }, dx = { 0, 0, -1, 1 };
-	static final int ALPABET_COUNT = 26;
+	static int[] dy = {-1, 1, 0, 0}, dx = {0, 0, -1, 1};
+	static final int ALPHABET_COUNT = 26;
 	static int answer = 0;
 
 	public static void main(String[] args) throws IOException {
@@ -15,7 +15,7 @@ public class Main {
 		R = Integer.parseInt(st.nextToken());
 		C = Integer.parseInt(st.nextToken());
 		board = new int[R][C];
-		visit = new boolean[ALPABET_COUNT];
+		visit = new boolean[ALPHABET_COUNT];
 		for (int i = 0; i < R; i++) {
 			String line = br.readLine();
 			for (int j = 0; j < C; j++) {
@@ -23,7 +23,11 @@ public class Main {
 			}
 		}
 		dfs(0, 0, 0);
-		System.out.println(answer);
+		if (answer == 0) {
+			System.out.println(1);
+		} else {
+			System.out.println(answer);
+		}
 	}
 
 	static void dfs(int y, int x, int count) {
