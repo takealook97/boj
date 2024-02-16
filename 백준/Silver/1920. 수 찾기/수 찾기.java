@@ -1,34 +1,52 @@
-import java.util.Arrays;
-import java.util.Scanner;
+import java.io.*;
+import java.util.*;
 
 public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        int N = sc.nextInt();
-        int[] arr = new int[N];
-        for (int i = 0; i < N; i++) {
-            arr[i] = sc.nextInt();
-        }
-        Arrays.sort(arr);
-        int M = sc.nextInt();
-        for (int i = 0; i < M; i++) {
-            if (binarySearch(arr, sc.nextInt()) >= 0) {
-                System.out.println(1);
-            } else System.out.println(0);
-        }
-    }
+	static int N, M;
+	static int[] arr;
+	static int[] targets;
 
-    public static int binarySearch(int[] arr, int key) {
-        int low = 0;
-        int high = arr.length - 1;
-        while (low <= high) {
-            int mid = (low + high) / 2;
-            if (key < arr[mid]) {
-                high = mid - 1;
-            } else if (key > arr[mid]) {
-                low = mid + 1;
-            } else return mid;
-        }
-        return -1;
-    }
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		N = Integer.parseInt(br.readLine());
+		arr = new int[N];
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		for (int i = 0; i < N; i++) {
+			arr[i] = Integer.parseInt(st.nextToken());
+		}
+		Arrays.sort(arr);
+
+		st = new StringTokenizer(br.readLine());
+		M = Integer.parseInt(st.nextToken());
+
+		targets = new int[M];
+		st = new StringTokenizer(br.readLine());
+		for (int i = 0; i < M; i++) {
+			targets[i] = Integer.parseInt(st.nextToken());
+		}
+
+		StringBuilder sb = new StringBuilder();
+		for (int target : targets) {
+			sb.append(binarySearch(target) ? 1 : 0).append("\n");
+		}
+
+		System.out.print(sb);
+	}
+
+	static boolean binarySearch(int target) {
+		int lo = 0;
+		int hi = arr.length - 1;
+		while (lo <= hi) {
+			int mid = lo + (hi - lo) / 2;
+			if (arr[mid] == target) {
+				return true;
+			} else if (arr[mid] < target) {
+				lo = mid + 1;
+			} else {
+				hi = mid - 1;
+			}
+		}
+
+		return false;
+	}
 }
