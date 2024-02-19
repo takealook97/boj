@@ -37,15 +37,18 @@ public class Main {
 			dp = new boolean[target + 1];
 			dp[0] = true;
 
-			for (int idx = 0; idx < N; idx++) {
-				for (int price = target; price >= priceArr[idx]; price--) {
-					for (int count = 1; count <= countArr[idx]; count++) {
-						if (price - count * priceArr[idx] >= 0) {
-							dp[price] = (dp[price] || dp[price - (count * priceArr[idx])]);
-						} else {
-							break;
+			for (int i = 0; i < N; i++) {
+				int num = 1;
+				while (countArr[i] > 0) {
+					int multi = Math.min(num, countArr[i]);
+					int value = multi * priceArr[i];
+					for (int price = target; price >= value; price--) {
+						if (!dp[price] && dp[price - value]) {
+							dp[price] = true;
 						}
 					}
+					countArr[i] -= multi;
+					num *= 2;
 				}
 			}
 
