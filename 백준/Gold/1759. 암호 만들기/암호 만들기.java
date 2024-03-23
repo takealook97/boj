@@ -1,61 +1,75 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
 	static int L, C;
-	static char[] alphabetArr;
-	static boolean[] visit;
+	static int[] arr;
+	static boolean[] visited;
+	static ArrayList<Integer> alphabets = new ArrayList<>();
+	static ArrayList<Integer> list = new ArrayList<>();
 	static StringBuilder answer = new StringBuilder();
 
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st = new StringTokenizer(br.readLine().trim());
+		StringTokenizer st = new StringTokenizer(br.readLine());
 		L = Integer.parseInt(st.nextToken());
 		C = Integer.parseInt(st.nextToken());
-		alphabetArr = new char[C];
-		visit = new boolean[C];
+		arr = new int[C];
+		visited = new boolean[C];
 
-		String line = br.readLine().trim().replace(" ", "");
+		st = new StringTokenizer(br.readLine());
 		for (int i = 0; i < C; i++) {
-			alphabetArr[i] = line.charAt(i);
+			arr[i] = st.nextToken().charAt(0);
 		}
-		Arrays.sort(alphabetArr);
+		Arrays.sort(arr);
 
-		dfs(0, "", 0);
-		
+		setAlphabet();
+		dfs(0, 0);
+
 		System.out.print(answer);
-		
 	}
 
-	static void dfs(int idx, String password, int depth) {
-		if (depth >= L) {
-			if (isPossible(password)) {
-				answer.append(password).append("\n");
+	static void setAlphabet() {
+		alphabets.add((int)'a');
+		alphabets.add((int)'e');
+		alphabets.add((int)'i');
+		alphabets.add((int)'o');
+		alphabets.add((int)'u');
+	}
+
+	static void dfs(int idx, int depth) {
+		if (depth == L) {
+			if (!isPossible()) {
+				return;
 			}
+			for (int i : list) {
+				answer.append((char)i);
+			}
+			answer.append("\n");
 			return;
 		}
+
 		for (int i = idx; i < C; i++) {
-			if (!visit[i]) {
-				visit[i] = true;
-				StringBuilder updated = new StringBuilder();
-				updated.append(password).append(alphabetArr[i]);
-				dfs(i + 1, updated.toString(), depth + 1);
-				visit[i] = false;
+			if (!visited[i]) {
+				visited[i] = true;
+				list.add(arr[i]);
+				dfs(i, depth + 1);
+				list.remove(list.size() - 1);
+				visited[i] = false;
 			}
 		}
 	}
 
-	static boolean isPossible(String password) {
-		int vowelCount = 0;
-		int consonantCount = 0;
-		char[] charArr = password.toCharArray();
-		for (char alphabet : charArr) {
-			if (alphabet == 'a' || alphabet == 'e' || alphabet == 'i' || alphabet == 'o' || alphabet == 'u') {
-				vowelCount++;
-			} else {
-				consonantCount++;
-			}
+	static boolean isPossible() {
+		int count = 0;
+		for (int i : alphabets) {
+			count += Collections.frequency(list, i);
 		}
-		return vowelCount >= 1 && consonantCount >= 2;
+
+		if (count == 0) {
+			return false;
+		}
+
+		return list.size() - count >= 2;
 	}
 }
