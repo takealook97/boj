@@ -1,48 +1,20 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.PriorityQueue;
+import java.util.StringTokenizer;
 
 public class Main {
 	static int T, R, C, answer;
-	static HashMap<Point, ArrayList<Edge>> map = new HashMap<>();
+	static int[] parent;
 	static PriorityQueue<Edge> pq = new PriorityQueue<>();
-	static boolean[][] visited;
-
-	static class Point {
-		int y, x;
-
-		public Point(int y, int x) {
-			this.y = y;
-			this.x = x;
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (this == o)
-				return true;
-			if (o == null || getClass() != o.getClass())
-				return false;
-
-			Point point = (Point)o;
-
-			if (y != point.y)
-				return false;
-			return x == point.x;
-		}
-
-		@Override
-		public int hashCode() {
-			int result = y;
-			result = 31 * result + x;
-			return result;
-		}
-	}
 
 	static class Edge implements Comparable<Edge> {
-		Point point;
-		int weight;
+		int from, to, weight;
 
-		public Edge(Point point, int weight) {
-			this.point = point;
+		public Edge(int from, int to, int weight) {
+			this.from = from;
+			this.to = to;
 			this.weight = weight;
 		}
 
@@ -55,6 +27,7 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		T = Integer.parseInt(br.readLine());
+
 		StringBuilder sb = new StringBuilder();
 
 		while (T-- > 0) {
@@ -68,8 +41,9 @@ public class Main {
 				st = new StringTokenizer(br.readLine());
 				for (int x = 0; x < C - 1; x++) {
 					int weight = Integer.parseInt(st.nextToken());
-					addEdge(new Point(y, x), new Edge(new Point(y, x + 1), weight));
-					addEdge(new Point(y, x + 1), new Edge(new Point(y, x), weight));
+					int fromIdx = y * C + x;
+					int toIdx = y * C + x + 1;
+					pq.add(new Edge(fromIdx, toIdx, weight));
 				}
 			}
 
@@ -77,12 +51,13 @@ public class Main {
 				st = new StringTokenizer(br.readLine());
 				for (int x = 0; x < C; x++) {
 					int weight = Integer.parseInt(st.nextToken());
-					addEdge(new Point(y, x), new Edge(new Point(y + 1, x), weight));
-					addEdge(new Point(y + 1, x), new Edge(new Point(y, x), weight));
+					int fromIdx = y * C + x;
+					int toIdx = (y + 1) * C + x;
+					pq.add(new Edge(fromIdx, toIdx, weight));
 				}
 			}
 
-			prim();
+			getMin();
 
 			sb.append(answer).append("\n");
 		}
@@ -92,35 +67,48 @@ public class Main {
 
 	static void init() {
 		answer = 0;
-		map.clear();
 		pq.clear();
-		visited = new boolean[R][C];
+		make();
 	}
 
-	static void addEdge(Point point, Edge edge) {
-		if (!map.containsKey(point)) {
-			map.put(point, new ArrayList<>());
-		}
-
-		map.get(point).add(edge);
-	}
-
-	static void prim() {
-		pq.add(new Edge(new Point(0, 0), 0));
-
+	static void getMin() {
+		int count = 0;
 		while (!pq.isEmpty()) {
-			Edge now = pq.poll();
-			if (!visited[now.point.y][now.point.x]) {
-				visited[now.point.y][now.point.x] = true;
-				answer += now.weight;
+			Edge edge = pq.poll();
 
-				ArrayList<Edge> list = map.get(now.point);
-				for (Edge next : list) {
-					if (!visited[next.point.y][next.point.x]) {
-						pq.add(next);
-					}
+			if (union(edge.from, edge.to)) {
+				count++;
+				answer += edge.weight;
+				if (count == R * C - 1) {
+					break;
 				}
 			}
 		}
+	}
+
+	static void make() {
+		parent = new int[R * C];
+		for (int i = 0; i < R * C; i++) {
+			parent[i] = i;
+		}
+	}
+
+	static boolean union(int x, int y) {
+		x = find(x);
+		y = find(y);
+
+		if (x != y) {
+			parent[y] = x;
+			return true;
+		}
+
+		return false;
+	}
+
+	static int find(int x) {
+		if (parent[x] == x) {
+			return x;
+		}
+		return parent[x] = find(parent[x]);
 	}
 }
