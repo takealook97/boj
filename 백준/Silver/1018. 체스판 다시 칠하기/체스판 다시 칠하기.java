@@ -1,49 +1,48 @@
-import java.util.Arrays;
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
 public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        int N = sc.nextInt();
-        int M = sc.nextInt();
-        String[] line = new String[N];
-        char[][] chess = new char[N][M];
-        char[][] standard = new char[8][8];
-        for (int i = 0; i < N; i++) {
-            line[i] = sc.next();
-        }
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
-                chess[i][j] = line[i].charAt(j);
-            }
-        }
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                if ((i + j) % 2 == 0) {
-                    standard[i][j] = 'W';
-                } else standard[i][j] = 'B';
-            }
-        }
-        int[] count = new int[(N - 7) * (M - 7)];
-        int x = 0;
-        for (int i = 0; i < N - 7; i++) {
-            for (int j = 0; j < M - 7; j++) {
-                for (int k = 0; k < 8; k++) {
-                    for (int l = 0; l < 8; l++) {
-                        if (chess[k + i][l + j] != standard[k][l]) {
-                            count[x]++;
-                        }
-                    }
-                }
-                x++;
-            }
-        }
-        for (int i = 0; i < (N - 7) * (M - 7); i++) {
-            if (count[i] > 32) {
-                count[i] = 64 - count[i];
-            }
-        }
-        Arrays.sort(count);
-        System.out.println(count[0]);
-    }
+	static int M, N;
+	static char[][] board;
+	static int answer = Integer.MAX_VALUE;
+	static final String B_LINE = "BWBWBWBW", W_LINE = "WBWBWBWB";
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		M = Integer.parseInt(st.nextToken());
+		N = Integer.parseInt(st.nextToken());
+		board = new char[M][N];
+
+		for (int i = 0; i < M; i++) {
+			board[i] = br.readLine().toCharArray();
+		}
+
+		for (int y = 0; y <= M - 8; y++) {
+			for (int x = 0; x <= N - 8; x++) {
+				int count = 0;
+
+				for (int i = y; i < y + 8; i++) {
+					for (int j = x; j < x + 8; j++) {
+						if (i % 2 == 0) {
+							if (B_LINE.charAt(j - x) != board[i][j]) {
+								count++;
+							}
+						} else {
+							if (W_LINE.charAt(j - x) != board[i][j]) {
+								count++;
+							}
+						}
+					}
+				}
+
+				count = Math.min(count, 64 - count);
+				answer = Math.min(answer, count);
+			}
+		}
+
+		System.out.println(answer);
+	}
 }
