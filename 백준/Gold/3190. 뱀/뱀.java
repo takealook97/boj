@@ -1,36 +1,36 @@
-import java.util.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Queue;
+import java.util.StringTokenizer;
 
 public class Main {
 	static int N, K, L;
-	static int[][] arr;
-	static boolean[][] visit;
-	static HashMap<Integer, Boolean> order = new HashMap<>();
-	static int direction = 0; // 0 우 / 1 하 / 2 좌 / 3 상
-	static Deque<Point> snake = new ArrayDeque<>();
-	static int[] dy = {0, 1, 0, -1}, dx = {1, 0, -1, 0};
-	static int count = 0;
+	static int[][] board;
+	static int[] dy = {-1, 0, 1, 0}, dx = {0, 1, 0, -1}; // 상우하좌
+	static Queue<Direction> order = new ArrayDeque<>();
+	static final int APPLE = 2, BODY = 1, EMPTY = 0;
 
 	static class Point {
-		int y, x;
+		int y, x, dir, time;
 
-		public Point(int y, int x) {
+		public Point(int y, int x, int dir, int time) {
 			this.y = y;
 			this.x = x;
+			this.dir = dir;
+			this.time = time;
 		}
+	}
 
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
+	static class Direction {
+		int time;
+		boolean isRight;
 
-			if (obj == null || getClass() != obj.getClass()) {
-				return false;
-			}
-
-			Point other = (Point)obj;
-			return x == other.x && y == other.y;
+		public Direction(int time, boolean isRight) {
+			this.time = time;
+			this.isRight = isRight;
 		}
 	}
 
@@ -38,95 +38,72 @@ public class Main {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		N = Integer.parseInt(br.readLine());
 		K = Integer.parseInt(br.readLine());
-		arr = new int[N][N];
-		visit = new boolean[N][N];
+		board = new int[N][N];
 		for (int i = 0; i < K; i++) {
 			StringTokenizer st = new StringTokenizer(br.readLine());
 			int y = Integer.parseInt(st.nextToken()) - 1;
 			int x = Integer.parseInt(st.nextToken()) - 1;
-			arr[y][x] = 2;//apple
-			visit[y][x] = true;
+			board[y][x] = APPLE;
 		}
 
 		L = Integer.parseInt(br.readLine());
 		for (int i = 0; i < L; i++) {
 			StringTokenizer st = new StringTokenizer(br.readLine());
 			int time = Integer.parseInt(st.nextToken());
-			char alphabet = st.nextToken().charAt(0);
-			boolean isLeft = alphabet == 'L';
-			order.put(time, isLeft);
+			boolean isRight = st.nextToken().charAt(0) == 'D';
+			order.add(new Direction(time, isRight));
 		}
 
-		snake.add(new Point(0, 0));
-		while (true) {
-			move();
-			setDirection();
-
-		}
+		System.out.println(getEndTime());
 	}
 
-	static void setDirection() {
-		if (order.containsKey(count)) {
-			boolean isLeft = order.get(count);
-			if (isLeft) {
-				direction--;
-				if (direction < 0) {
-					direction = 3;
-				}
-			} else {
-				direction++;
-				if (direction > 3) {
-					direction = 0;
+	static int getEndTime() {
+		int timeSum = 0;
+		Direction dirInfo = order.peek();
+		Deque<Point> snake = new ArrayDeque<>();
+		snake.add(new Point(0, 0, 1, 0));
+		board[0][0] = BODY;
+
+		while (!snake.isEmpty()) {
+			Point now = snake.peekFirst();
+
+			int updatedDir = now.dir;
+			if (!order.isEmpty() && now.time == order.peek().time) {
+				dirInfo = order.poll();
+				if (dirInfo.isRight) {
+					updatedDir = (now.dir + 1) % 4;
+				} else {
+					updatedDir = (now.dir + 3) % 4;
 				}
 			}
-		}
-	}
+			now.dir = updatedDir;
 
-	static void move() {
-		Point head = snake.peekFirst();
-		int nowY = head.y;
-		int nowX = head.x;
-		int nextY = nowY + dy[direction];
-		int nextX = nowX + dx[direction];
+			// stretch
+			int nextY = now.y + dy[now.dir];
+			int nextX = now.x + dx[now.dir];
 
-		if (isPossible(nextY, nextX)) {
-			if (isApple(nextY, nextX)) {
-				stretch(nextY, nextX);
-				count++;
-			} else {
-				stretch(nextY, nextX);
-				shorten();
-				count++;
+			if (!isPossible(nextY, nextX)) { // head check
+				break;
 			}
-		} else {
-			count++;
-			System.out.println(count);
-			System.exit(0);
+
+			Point next = new Point(nextY, nextX, now.dir, now.time + 1);
+			snake.addFirst(next);
+
+			// remove tail
+			if (board[nextY][nextX] == EMPTY) {
+				Point tail = snake.pollLast();
+				board[tail.y][tail.x] = EMPTY;
+			}
+			// add head
+			board[nextY][nextX] = BODY;
+
+			timeSum++;
 		}
+
+		return timeSum + 1;
 	}
 
-	static void stretch(int y, int x) {
-		if (isPossible(y, x)) {
-			snake.addFirst(new Point(y, x));
-		}
-	}
-
-	static void shorten() {
-		snake.removeLast();
-	}
-
-	static boolean isPossible(int y, int x) {//몸이나 벽이면 false
-		if (snake.contains(new Point(y, x))) {
-			return false;
-		}
-		return 0 <= y && y < N && 0 <= x && x < N;
-	}
-
-	static boolean isApple(int y, int x) {
-		if (arr[y][x] == 2) {//사과일 경우
-			arr[y][x] = 0;
-			return true;
-		}
-		return false;//빈칸일 경우
+	static boolean isPossible(int y, int x) {
+		return 0 <= y && y < N && 0 <= x && x < N && board[y][x] != BODY;
 	}
 }
