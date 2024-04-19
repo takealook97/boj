@@ -5,36 +5,31 @@ import java.util.StringTokenizer;
 
 public class Main {
 	static int N, K;
-	static int[] W, V;
-	static int[][] dp;
+	static int[] W, V, dp;
 
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine());
 		N = Integer.parseInt(st.nextToken());
 		K = Integer.parseInt(st.nextToken());
-		W = new int[N + 1];
-		V = new int[N + 1];
+		W = new int[N];
+		V = new int[N];
 
-		for (int i = 1; i <= N; i++) {
+		for (int i = 0; i < N; i++) {
 			st = new StringTokenizer(br.readLine());
 			W[i] = Integer.parseInt(st.nextToken());
 			V[i] = Integer.parseInt(st.nextToken());
 		}
 
-		dp = new int[N + 1][K + 1];
+		dp = new int[K + 1];
 
 		// knapsack dp
-		for (int i = 1; i <= N; i++) {
-			for (int j = 1; j <= K; j++) {
-				if (W[i] <= j) {
-					dp[i][j] = Math.max(dp[i - 1][j], dp[i - 1][j - W[i]] + V[i]);
-				} else {
-					dp[i][j] = dp[i - 1][j];
-				}
+		for (int i = 0; i < N; i++) {
+			for (int j = K; j >= W[i]; j--) {
+				dp[j] = Math.max(dp[j], dp[j - W[i]] + V[i]);
 			}
 		}
 
-		System.out.println(dp[N][K]);
+		System.out.println(dp[K]);
 	}
 }
