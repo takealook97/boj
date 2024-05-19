@@ -5,7 +5,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
@@ -14,7 +13,9 @@ public class Main {
 	static ArrayList<Integer>[] listArr;
 	static boolean[] visited, check;
 	static Queue<Integer> queue = new ArrayDeque<>();
+	static ArrayList<Integer> list = new ArrayList<>();
 	static int[] parent;
+	static int answer = 0;
 
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -44,22 +45,24 @@ public class Main {
 		E = Integer.parseInt(st.nextToken());
 
 		for (int i = 1; i <= N; i++) {
-			Collections.sort(listArr[i]);
+			if (listArr[i].size() > 1) {
+				Collections.sort(listArr[i]);
+			}
 		}
 
-		List<Integer> toE = bfs(S, E);
+		bfs(S, E);
 
-		for (int node : toE) {
+		for (int node : list) {
 			check[node] = true;
 		}
 
 		check[S] = false;
-		List<Integer> toS = bfsWithCheck(E, S);
+		bfsWithCheck(E, S);
 
-		System.out.println(toE.size() + toS.size() - 2);
+		System.out.println(answer);
 	}
 
-	static List<Integer> bfs(int start, int end) {
+	static void bfs(int start, int end) {
 		queue.clear();
 		Arrays.fill(visited, false);
 		Arrays.fill(parent, -1);
@@ -83,15 +86,14 @@ public class Main {
 			}
 		}
 
-		List<Integer> path = new ArrayList<>();
 		for (int i = end; i != -1; i = parent[i]) {
-			path.add(i);
+			list.add(i);
 		}
-		Collections.reverse(path);
-		return path;
+
+		answer += list.size() - 1;
 	}
 
-	static List<Integer> bfsWithCheck(int start, int end) {
+	static void bfsWithCheck(int start, int end) {
 		queue.clear();
 		Arrays.fill(visited, false);
 		Arrays.fill(parent, -1);
@@ -106,20 +108,20 @@ public class Main {
 				break;
 			}
 
-			for (int neighbor : listArr[now]) {
-				if (!visited[neighbor] && !check[neighbor]) {
-					visited[neighbor] = true;
-					parent[neighbor] = now;
-					queue.add(neighbor);
+			for (int next : listArr[now]) {
+				if (!visited[next] && !check[next]) {
+					visited[next] = true;
+					parent[next] = now;
+					queue.add(next);
 				}
 			}
 		}
 
-		List<Integer> path = new ArrayList<>();
+		list.clear();
 		for (int i = end; i != -1; i = parent[i]) {
-			path.add(i);
+			list.add(i);
 		}
-		Collections.reverse(path);
-		return path;
+
+		answer += list.size() - 1;
 	}
 }
