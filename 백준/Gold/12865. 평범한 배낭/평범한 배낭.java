@@ -5,28 +5,26 @@ import java.util.StringTokenizer;
 
 public class Main {
 	static int N, K;
-	static int[] W, V, dp;
+	static int[] weight, value, dp;
 
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine());
 		N = Integer.parseInt(st.nextToken());
 		K = Integer.parseInt(st.nextToken());
-		W = new int[N];
-		V = new int[N];
+		weight = new int[N];
+		value = new int[N];
+		dp = new int[K + 1];
 
 		for (int i = 0; i < N; i++) {
 			st = new StringTokenizer(br.readLine());
-			W[i] = Integer.parseInt(st.nextToken());
-			V[i] = Integer.parseInt(st.nextToken());
+			weight[i] = Integer.parseInt(st.nextToken());
+			value[i] = Integer.parseInt(st.nextToken());
 		}
 
-		dp = new int[K + 1];
-
-		// knapsack dp
 		for (int i = 0; i < N; i++) {
-			for (int j = K; j >= W[i]; j--) {
-				dp[j] = Math.max(dp[j], dp[j - W[i]] + V[i]);
+			for (int j = K; j >= weight[i]; j--) {
+				dp[j] = Math.max(dp[j], dp[j - weight[i]] + value[i]);
 			}
 		}
 
