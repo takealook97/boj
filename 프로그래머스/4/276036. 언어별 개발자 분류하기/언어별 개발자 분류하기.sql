@@ -1,56 +1,26 @@
-WITH PYTHON AS (
-    SELECT CODE
-    FROM SKILLCODES
-    WHERE NAME = 'Python'
-), 
-FRONT AS (
-    SELECT CODE
-    FROM SKILLCODES
-    WHERE CATEGORY = 'Front End'
-), 
-B AS (
-    SELECT CODE
-    FROM SKILLCODES
-    WHERE NAME = 'C#'
+WITH SKILLS AS (
+    SELECT D.ID, D.EMAIL, D.SKILL_CODE,
+           SUM(CASE WHEN S.NAME = 'Python' THEN 1 ELSE 0 END) AS HAS_PYTHON,
+           SUM(CASE WHEN S.NAME = 'C#' THEN 1 ELSE 0 END) AS HAS_CSHARP,
+           SUM(CASE WHEN S.CATEGORY = 'Front End' THEN 1 ELSE 0 END) AS HAS_FRONT
+    FROM DEVELOPERS D
+    JOIN SKILLCODES S
+    ON (D.SKILL_CODE & S.CODE) = S.CODE
+    GROUP BY D.ID, D.EMAIL, D.SKILL_CODE
 )
-SELECT
-    CASE
-        WHEN (D.SKILL_CODE & P.CODE) = P.CODE 
-             AND EXISTS (
-                 SELECT 1 
-                 FROM FRONT F 
-                 WHERE (D.SKILL_CODE & F.CODE) = F.CODE
-             )
-            THEN 'A'
-        WHEN (D.SKILL_CODE & B.CODE) = B.CODE
-            THEN 'B'
-        WHEN EXISTS (
-                 SELECT 1 
-                 FROM FRONT F 
-                 WHERE (D.SKILL_CODE & F.CODE) = F.CODE
-             ) 
-            AND (D.SKILL_CODE & P.CODE) != P.CODE
-            AND (D.SKILL_CODE & B.CODE) != B.CODE
-            THEN 'C'
-        ELSE NULL -- A, B, C가 아닐 때 NULL 반환
-    END AS GRADE,
-    D.ID,
-    D.EMAIL
-FROM DEVELOPERS D
-CROSS JOIN PYTHON P
-CROSS JOIN B B
-WHERE (
-    (D.SKILL_CODE & P.CODE) = P.CODE 
-    AND EXISTS (
-        SELECT 1 FROM FRONT F WHERE (D.SKILL_CODE & F.CODE) = F.CODE
-    )
-) 
-OR (D.SKILL_CODE & B.CODE) = B.CODE
-OR (
-    EXISTS (
-        SELECT 1 FROM FRONT F WHERE (D.SKILL_CODE & F.CODE) = F.CODE
-    )
-    AND (D.SKILL_CODE & P.CODE) != P.CODE
-    AND (D.SKILL_CODE & B.CODE) != B.CODE
-)
-ORDER BY GRADE, D.ID;
+
+SELECT * 
+FROM (
+    SELECT 
+        CASE
+            WHEN HAS_PYTHON > 0 AND HAS_FRONT > 0 THEN 'A'
+            WHEN HAS_CSHARP > 0 THEN 'B'
+            WHEN HAS_FRONT > 0 THEN 'C'
+            ELSE NULL
+        END AS GRADE,
+        ID,
+        EMAIL
+    FROM SKILLS
+) AS GRADED_SKILLS
+WHERE GRADE IS NOT NULL
+ORDER BY GRADE, ID;
